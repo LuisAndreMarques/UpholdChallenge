@@ -7,7 +7,6 @@ import "bootstrap/dist/css/bootstrap.css";
 import github from "./images/github.svg";
 
 import Uphold from "@uphold/uphold-sdk-javascript";
-//import { promises } from "fs";
 
 const sdk = new Uphold({
   baseUrl: "http://api-sandbox.uphold.com",
@@ -16,6 +15,8 @@ const sdk = new Uphold({
 });
 
 class App extends Component {
+  _isMouted = false;
+
   state = {
     error: null,
     isLoaded: false,
@@ -28,11 +29,17 @@ class App extends Component {
   };
 
   componentWillMount() {
-    this.state.items.length === 0
-      ? this.fetchData()
-      : this.setState.selectedCurrency("USD");
+    this._isMouted = true;
+    if (this._isMouted) {
+      this.state.items.length === 0
+        ? this.fetchData()
+        : this.setState.selectedCurrency("USD");
+    }
   }
 
+  componentWillUnmount() {
+    this._isMouted = false;
+  }
   fetchData = () => {
     sdk.getTicker().then(data => {
       this.setState({
@@ -49,18 +56,18 @@ class App extends Component {
       this.setState({
         itemsList: data
       });
+
       return data;
     });
   };
 
-  orderData = () => {
-    const data = [...new Set(this.state.items.map(items => items))];
-    this.setState({ data });
-  };
-
   changeRate = selectedCurrency => {
-    this.setState({ selectedCurrency });
-    this.getDataWithCurrency(this.state.selectedCurrency);
+    let selected = selectedCurrency
+      ? selectedCurrency
+      : this.state.selectedCurrency;
+
+    this.setState({ selectedCurrency: selected });
+    this.getDataWithCurrency(selected);
   };
 
   componentDidUpdate() {}
@@ -69,11 +76,11 @@ class App extends Component {
     const currencies = [
       ...new Set(this.state.items.map(item => item.currency))
     ];
-    this.setState({ currencies });
+    this.setState({ currencies: currencies });
   };
+
   checkInputValue = inputValue => {
     this.setState({ inputValue });
-    return this.state.inputValue;
   };
 
   render() {

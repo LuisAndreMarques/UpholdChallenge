@@ -37,6 +37,7 @@ class Currencies extends Component {
                           width="30px"
                         />
                       </div>
+
                       <div className="currencyDesc">{c.currency}</div>
                     </td>
                   </tr>
